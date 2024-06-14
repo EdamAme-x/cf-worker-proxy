@@ -2,7 +2,7 @@ import { Context, Hono } from 'hono';
 
 const app = new Hono();
 
-const baseUrl = 'https://ame-x.net';
+const baseUrl = 'https://hono.dev';
 
 app.all('*', async (c: Context) => {
 	const urlObj = new URL(c.req.url);
@@ -11,11 +11,15 @@ app.all('*', async (c: Context) => {
 	const headers = c.req.raw.headers;
 	const body = c.req.raw.body;
 	const buildedUrl = `${baseUrl}${pathNameAndQuery}`;
-	const response = await fetch(buildedUrl, {
+	const _response = await fetch(buildedUrl, {
 		method,
 		headers,
 		body,
 	});
+
+	const response = new Response(_response.body as BodyInit, _response);
+
+	response.headers.set('access-control-allow-origin', '*');
 
 	const redirectDetect = response.headers.get('Location');
 	if (redirectDetect && redirectDetect.includes(baseUrl)) {
